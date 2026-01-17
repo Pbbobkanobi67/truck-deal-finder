@@ -9,8 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/nodemailer": "^7.0.5",
     "better-sqlite3": "^12.6.0",
+    "googleapis": "^170.1.0",
     "next": "16.1.2",
+    "next-auth": "^5.0.0-beta.30",
+    "nodemailer": "^7.0.12",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
