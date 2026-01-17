@@ -19,7 +19,11 @@
       "Bash(npm run build:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd comprehensive filter system with dropdowns\n\nDatabase enhancements:\n- Add vehicle spec columns: cab_type, bed_length, drivetrain, engine, colors\n- Add 16 feature flag columns for fast querying\n- Add email_communications and user_sessions tables for Gmail integration\n- Auto-migrate existing databases with new columns\n\nPython scraper enhancements:\n- Add detail page scraper for Cars.com\n- Add feature detection patterns for moonroof, leather, nav, towing, etc.\n- Add --fetch-details CLI flag to scrape detailed specs\n- Parse cab type, bed length, drivetrain, engine from listings\n\nFrontend filter system:\n- Add FilterPanel with collapsible \"Build Your Dream Truck\" interface\n- Add Dropdown, MultiSelect, and FeatureSelect components\n- Add filter-options API endpoint for dynamic dropdown values\n- Enhanced listings API with cab, bed, drivetrain, engine, color filters\n- Feature-based filtering \\(moonroof, leather, navigation, etc.\\)\n- Comparison checkboxes for side-by-side comparison \\(UI ready\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git push)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npx vercel --prod)",
+      "Bash(npx vercel:*)"
     ]
   }
 }

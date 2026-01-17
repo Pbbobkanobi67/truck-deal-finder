@@ -20,20 +20,25 @@ interface ExtendedJWT extends JWT {
   error?: string;
 }
 
+// Check if Google OAuth is configured
+const isGoogleConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+
 export const authConfig: NextAuthConfig = {
-  providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          scope: 'openid email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly',
-          access_type: 'offline',
-          prompt: 'consent',
-        },
-      },
-    }),
-  ],
+  providers: isGoogleConfigured
+    ? [
+        Google({
+          clientId: process.env.GOOGLE_CLIENT_ID!,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+          authorization: {
+            params: {
+              scope: 'openid email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly',
+              access_type: 'offline',
+              prompt: 'consent',
+            },
+          },
+        }),
+      ]
+    : [],
   callbacks: {
     async jwt({ token, account }) {
       const extToken = token as ExtendedJWT;
@@ -54,6 +59,10 @@ export const authConfig: NextAuthConfig = {
       }
 
       // Access token has expired, try to refresh it
+      if (!isGoogleConfigured || !extToken.refreshToken) {
+        return { ...extToken, error: 'RefreshAccessTokenError' } as ExtendedJWT;
+      }
+
       try {
         const response = await fetch('https://oauth2.googleapis.com/token', {
           method: 'POST',
@@ -62,7 +71,7 @@ export const authConfig: NextAuthConfig = {
             client_id: process.env.GOOGLE_CLIENT_ID!,
             client_secret: process.env.GOOGLE_CLIENT_SECRET!,
             grant_type: 'refresh_token',
-            refresh_token: extToken.refreshToken!,
+            refresh_token: extToken.refreshToken,
           }),
         });
 

@@ -8,8 +8,9 @@ interface Props {
 }
 
 export default function SessionProvider({ children }: Props) {
+  // SessionProvider works even without auth configured - it will just return null session
   return (
-    <NextAuthSessionProvider>
+    <NextAuthSessionProvider refetchInterval={0} refetchOnWindowFocus={false}>
       {children}
     </NextAuthSessionProvider>
   );
