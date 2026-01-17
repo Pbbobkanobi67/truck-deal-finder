@@ -102,6 +102,74 @@ USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
 ]
 
+# =============================================================================
+# FEATURE DETECTION PATTERNS
+# =============================================================================
+
+FEATURE_PATTERNS = {
+    'has_moonroof': ['moonroof', 'sunroof', 'panoramic roof', 'panoramic sunroof'],
+    'has_leather': ['leather', 'premium seating', 'leather-trimmed', 'leather seats'],
+    'has_heated_seats': ['heated seat', 'heated front seat', 'heated and ventilated'],
+    'has_ventilated_seats': ['ventilated seat', 'cooled seat', 'heated and ventilated'],
+    'has_premium_sound': ['jbl', 'b&o', 'bang & olufsen', 'bang and olufsen', 'premium audio',
+                          'harman kardon', 'sony audio', 'premium sound'],
+    'has_power_tailgate': ['power tailgate', 'power liftgate', 'kick-to-open', 'hands-free tailgate',
+                           'remote tailgate', 'power rear gate'],
+    'has_navigation': ['navigation', 'nav system', 'gps navigation', 'built-in navigation'],
+    'has_360_camera': ['360', 'surround view', 'bird eye', 'multi-view camera', '360-degree',
+                       'around view', 'surround camera'],
+    'has_hud': ['head-up', 'heads up', 'heads-up', 'hud display', 'head up display'],
+    'has_wireless_charging': ['wireless charg', 'qi charging', 'wireless phone charging',
+                              'wireless device charging'],
+    'has_blind_spot': ['blind spot', 'bsm', 'blis', 'blind-spot', 'blindspot'],
+    'has_lane_keep': ['lane keep', 'lane assist', 'lka', 'lane departure', 'lane centering',
+                      'lane tracing'],
+    'has_adaptive_cruise': ['adaptive cruise', 'acc', 'radar cruise', 'dynamic cruise',
+                            'full-speed range cruise', 'dynamic radar cruise'],
+    'has_tow_package': ['tow package', 'trailer tow', 'towing package', 'tow prep',
+                        'trailer tow package', 'tow hitch'],
+    'has_max_tow': ['max tow', 'heavy-duty tow', '10,000', '10000', '11,000', '11000',
+                    '12,000', '12000', '13,000', '13000', '14,000', '14000'],
+    'has_offroad_package': ['trd pro', 'trd off-road', 'trd off road', 'fx4', 'raptor',
+                            'tremor', 'trail boss', 'at4', 'off-road package'],
+}
+
+CAB_TYPE_PATTERNS = {
+    'Double Cab': ['double cab', 'doublecab'],
+    'CrewMax': ['crewmax', 'crew max'],
+    'Regular Cab': ['regular cab', 'standard cab'],
+    'SuperCab': ['supercab', 'super cab', 'extended cab'],
+    'SuperCrew': ['supercrew', 'super crew', 'crew cab'],
+}
+
+BED_LENGTH_PATTERNS = {
+    '5.5': ["5.5'", '5.5 ft', '5.5ft', "5'6", '5.5-foot', 'short bed', '5.5-ft', '66.7'],
+    '6.5': ["6.5'", '6.5 ft', '6.5ft', "6'6", '6.5-foot', 'standard bed', '6.5-ft', '78.9'],
+    '8': ["8'", '8 ft', '8ft', '8-foot', 'long bed', '8-ft', '8.1', '97.6'],
+}
+
+DRIVETRAIN_PATTERNS = {
+    '4WD': ['4wd', '4x4', 'four wheel drive', 'four-wheel drive', 'all wheel drive', 'awd',
+            '4-wheel drive'],
+    '2WD': ['2wd', 'rwd', 'rear wheel drive', 'rear-wheel drive', 'two wheel drive',
+            '2-wheel drive'],
+}
+
+# Toyota engine options
+TOYOTA_ENGINE_PATTERNS = {
+    'i-FORCE MAX Hybrid': ['i-force max', 'iforce max', 'hybrid', 'i-forcemax'],
+    '3.5L Twin-Turbo V6': ['3.5l', '3.5 l', 'v6', 'twin turbo', 'twin-turbo', 'i-force'],
+}
+
+# Ford engine options
+FORD_ENGINE_PATTERNS = {
+    '5.0L V8': ['5.0l', '5.0 l', 'coyote', 'v8'],
+    '3.5L PowerBoost': ['powerboost', 'power boost', 'hybrid'],
+    '3.5L EcoBoost': ['3.5l ecoboost', '3.5 ecoboost', '3.5l eco'],
+    '2.7L EcoBoost': ['2.7l', '2.7 l', '2.7l ecoboost', '2.7 ecoboost'],
+    '3.3L V6': ['3.3l', '3.3 l'],
+}
+
 DB_PATH = Path(__file__).parent / "truck_deals.db"
 REPORT_PATH = Path(__file__).parent / "truck_deals_report.html"
 
@@ -227,6 +295,34 @@ def get_active_filters_summary() -> str:
 # DATABASE OPERATIONS
 # =============================================================================
 
+# New columns to add for enhanced filtering
+NEW_LISTING_COLUMNS = [
+    ("cab_type", "TEXT"),
+    ("bed_length", "TEXT"),
+    ("drivetrain", "TEXT"),
+    ("engine", "TEXT"),
+    ("exterior_color", "TEXT"),
+    ("interior_color", "TEXT"),
+    ("features", "TEXT DEFAULT '[]'"),
+    ("has_moonroof", "INTEGER DEFAULT 0"),
+    ("has_leather", "INTEGER DEFAULT 0"),
+    ("has_heated_seats", "INTEGER DEFAULT 0"),
+    ("has_ventilated_seats", "INTEGER DEFAULT 0"),
+    ("has_premium_sound", "INTEGER DEFAULT 0"),
+    ("has_power_tailgate", "INTEGER DEFAULT 0"),
+    ("has_navigation", "INTEGER DEFAULT 0"),
+    ("has_360_camera", "INTEGER DEFAULT 0"),
+    ("has_hud", "INTEGER DEFAULT 0"),
+    ("has_wireless_charging", "INTEGER DEFAULT 0"),
+    ("has_blind_spot", "INTEGER DEFAULT 0"),
+    ("has_lane_keep", "INTEGER DEFAULT 0"),
+    ("has_adaptive_cruise", "INTEGER DEFAULT 0"),
+    ("has_tow_package", "INTEGER DEFAULT 0"),
+    ("has_max_tow", "INTEGER DEFAULT 0"),
+    ("has_offroad_package", "INTEGER DEFAULT 0"),
+    ("detail_scraped_at", "TIMESTAMP"),
+]
+
 
 def get_db_connection() -> sqlite3.Connection:
     """Get database connection with row factory."""
@@ -235,12 +331,29 @@ def get_db_connection() -> sqlite3.Connection:
     return conn
 
 
+def migrate_database(cursor: sqlite3.Cursor):
+    """Add new columns to existing database tables if they don't exist."""
+    # Get existing columns in listings table
+    cursor.execute("PRAGMA table_info(listings)")
+    existing_columns = {row[1] for row in cursor.fetchall()}
+
+    # Add missing columns
+    for column_name, column_type in NEW_LISTING_COLUMNS:
+        if column_name not in existing_columns:
+            try:
+                cursor.execute(f"ALTER TABLE listings ADD COLUMN {column_name} {column_type}")
+                print(f"  Added column: {column_name}")
+            except sqlite3.OperationalError as e:
+                if "duplicate column" not in str(e).lower():
+                    print(f"  Warning: Could not add column {column_name}: {e}")
+
+
 def init_database():
     """Initialize the SQLite database with required tables."""
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Listings table
+    # Listings table with enhanced vehicle specs
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -262,9 +375,43 @@ def init_database():
             first_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             price_history TEXT DEFAULT '[]',
+
+            -- Vehicle Configuration (added for enhanced filtering)
+            cab_type TEXT,
+            bed_length TEXT,
+            drivetrain TEXT,
+            engine TEXT,
+            exterior_color TEXT,
+            interior_color TEXT,
+            features TEXT DEFAULT '[]',
+
+            -- Feature flags for fast querying
+            has_moonroof INTEGER DEFAULT 0,
+            has_leather INTEGER DEFAULT 0,
+            has_heated_seats INTEGER DEFAULT 0,
+            has_ventilated_seats INTEGER DEFAULT 0,
+            has_premium_sound INTEGER DEFAULT 0,
+            has_power_tailgate INTEGER DEFAULT 0,
+            has_navigation INTEGER DEFAULT 0,
+            has_360_camera INTEGER DEFAULT 0,
+            has_hud INTEGER DEFAULT 0,
+            has_wireless_charging INTEGER DEFAULT 0,
+            has_blind_spot INTEGER DEFAULT 0,
+            has_lane_keep INTEGER DEFAULT 0,
+            has_adaptive_cruise INTEGER DEFAULT 0,
+            has_tow_package INTEGER DEFAULT 0,
+            has_max_tow INTEGER DEFAULT 0,
+            has_offroad_package INTEGER DEFAULT 0,
+
+            -- Tracking
+            detail_scraped_at TIMESTAMP,
+
             UNIQUE(source, listing_id)
         )
     """)
+
+    # Migrate existing database if columns don't exist
+    migrate_database(cursor)
 
     # Price alerts table
     cursor.execute("""
@@ -276,6 +423,39 @@ def init_database():
             change_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             notified INTEGER DEFAULT 0,
             FOREIGN KEY (listing_id) REFERENCES listings(id)
+        )
+    """)
+
+    # Email communications table for Gmail integration
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS email_communications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            listing_id INTEGER,
+            dealer_name TEXT NOT NULL,
+            dealer_email TEXT,
+            gmail_thread_id TEXT,
+            gmail_message_id TEXT,
+            subject TEXT,
+            body TEXT,
+            direction TEXT NOT NULL,
+            sent_at TIMESTAMP,
+            received_at TIMESTAMP,
+            status TEXT DEFAULT 'draft',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (listing_id) REFERENCES listings(id)
+        )
+    """)
+
+    # User sessions table for OAuth tokens
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_email TEXT NOT NULL UNIQUE,
+            access_token TEXT,
+            refresh_token TEXT,
+            token_expires_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP
         )
     """)
 
@@ -528,6 +708,302 @@ def random_delay():
     """Sleep for a random duration between requests."""
     delay = random.uniform(*CONFIG["request_delay"])
     time.sleep(delay)
+
+
+# =============================================================================
+# FEATURE PARSING FUNCTIONS
+# =============================================================================
+
+
+def parse_feature_flags(features: list[str], text_content: str = "") -> dict:
+    """Parse feature list and text content into boolean flags."""
+    flags = {key: 0 for key in FEATURE_PATTERNS}
+
+    # Combine features list and text content for searching
+    search_text = ' '.join(features).lower() + ' ' + text_content.lower()
+
+    for flag, patterns in FEATURE_PATTERNS.items():
+        for pattern in patterns:
+            if pattern.lower() in search_text:
+                flags[flag] = 1
+                break
+
+    return flags
+
+
+def parse_cab_type(text: str) -> Optional[str]:
+    """Extract cab type from text."""
+    text_lower = text.lower()
+    for cab_type, patterns in CAB_TYPE_PATTERNS.items():
+        for pattern in patterns:
+            if pattern in text_lower:
+                return cab_type
+    return None
+
+
+def parse_bed_length(text: str) -> Optional[str]:
+    """Extract bed length from text."""
+    text_lower = text.lower()
+    for length, patterns in BED_LENGTH_PATTERNS.items():
+        for pattern in patterns:
+            if pattern in text_lower:
+                return length
+    return None
+
+
+def parse_drivetrain(text: str) -> Optional[str]:
+    """Extract drivetrain from text."""
+    text_lower = text.lower()
+    for drivetrain, patterns in DRIVETRAIN_PATTERNS.items():
+        for pattern in patterns:
+            if pattern in text_lower:
+                return drivetrain
+    return None
+
+
+def parse_engine(text: str, make: str) -> Optional[str]:
+    """Extract engine type from text based on make."""
+    text_lower = text.lower()
+
+    if make.lower() == 'toyota':
+        patterns = TOYOTA_ENGINE_PATTERNS
+    elif make.lower() == 'ford':
+        patterns = FORD_ENGINE_PATTERNS
+    else:
+        return None
+
+    for engine, engine_patterns in patterns.items():
+        for pattern in engine_patterns:
+            if pattern in text_lower:
+                return engine
+    return None
+
+
+def scrape_cars_com_detail_page(listing_url: str, session: requests.Session, make: str) -> dict:
+    """Scrape detailed vehicle specs from Cars.com detail page."""
+    specs = {
+        'cab_type': None,
+        'bed_length': None,
+        'drivetrain': None,
+        'engine': None,
+        'exterior_color': None,
+        'interior_color': None,
+        'features': [],
+        'feature_flags': {},
+    }
+
+    try:
+        response = session.get(listing_url, timeout=60)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "lxml")
+
+        # Collect all text for feature detection
+        page_text = soup.get_text(' ', strip=True)
+
+        # Try to find specs in various locations
+        # Look for vehicle overview section
+        overview_section = soup.select_one('.vehicle-overview, [data-qa="overview"], .specs-section')
+
+        # Look for specific data attributes
+        all_specs_text = ""
+
+        # Engine/Drivetrain from overview
+        for selector in ['.vehicle-overview__item', '.specs-item', '[data-qa="spec-item"]',
+                         '.basics-section li', '.vdp-content-basics li']:
+            items = soup.select(selector)
+            for item in items:
+                item_text = item.get_text(strip=True)
+                all_specs_text += ' ' + item_text
+
+                # Check for specific labels
+                label_lower = item_text.lower()
+                if 'engine' in label_lower or 'motor' in label_lower:
+                    specs['engine'] = parse_engine(item_text, make) or specs['engine']
+                if 'drivetrain' in label_lower or 'drive type' in label_lower:
+                    specs['drivetrain'] = parse_drivetrain(item_text) or specs['drivetrain']
+
+        # Exterior color
+        for selector in ['[data-qa="exterior-color"]', '.exterior-color', '.ext-color']:
+            elem = soup.select_one(selector)
+            if elem:
+                color_text = elem.get_text(strip=True)
+                # Clean up color text
+                color_text = re.sub(r'^exterior[:\s]*', '', color_text, flags=re.I)
+                specs['exterior_color'] = color_text.strip()
+                break
+
+        # If no specific selector, look for color in overview
+        if not specs['exterior_color']:
+            color_match = re.search(r'exterior[:\s]+([^,\n]+)', page_text, re.I)
+            if color_match:
+                specs['exterior_color'] = color_match.group(1).strip()
+
+        # Interior color
+        for selector in ['[data-qa="interior-color"]', '.interior-color', '.int-color']:
+            elem = soup.select_one(selector)
+            if elem:
+                color_text = elem.get_text(strip=True)
+                color_text = re.sub(r'^interior[:\s]*', '', color_text, flags=re.I)
+                specs['interior_color'] = color_text.strip()
+                break
+
+        if not specs['interior_color']:
+            color_match = re.search(r'interior[:\s]+([^,\n]+)', page_text, re.I)
+            if color_match:
+                specs['interior_color'] = color_match.group(1).strip()
+
+        # Features list from various sections
+        features = []
+        for selector in ['.features-list li', '.vehicle-features li', '[data-qa="feature-item"]',
+                         '.all-features-list li', '.feature-item', '.features-section li']:
+            feature_elems = soup.select(selector)
+            for elem in feature_elems:
+                feature_text = elem.get_text(strip=True)
+                if feature_text and len(feature_text) > 2:
+                    features.append(feature_text)
+
+        specs['features'] = list(set(features))  # Deduplicate
+
+        # Parse cab type and bed length from title or body style
+        title_elem = soup.select_one('h1, .listing-title, [data-qa="title"]')
+        title_text = title_elem.get_text(strip=True) if title_elem else ""
+
+        specs['cab_type'] = parse_cab_type(title_text + ' ' + all_specs_text)
+        specs['bed_length'] = parse_bed_length(title_text + ' ' + all_specs_text)
+        specs['drivetrain'] = specs['drivetrain'] or parse_drivetrain(title_text + ' ' + all_specs_text)
+        specs['engine'] = specs['engine'] or parse_engine(title_text + ' ' + all_specs_text, make)
+
+        # Parse feature flags
+        specs['feature_flags'] = parse_feature_flags(features, page_text)
+
+    except Exception as e:
+        print(f"    Error scraping detail page: {e}")
+
+    return specs
+
+
+def update_listing_details(listing_id: int, specs: dict):
+    """Update a listing with detailed specs from detail page scrape."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    now = datetime.now().isoformat()
+    feature_flags = specs.get('feature_flags', {})
+
+    cursor.execute("""
+        UPDATE listings SET
+            cab_type = COALESCE(?, cab_type),
+            bed_length = COALESCE(?, bed_length),
+            drivetrain = COALESCE(?, drivetrain),
+            engine = COALESCE(?, engine),
+            exterior_color = COALESCE(?, exterior_color),
+            interior_color = COALESCE(?, interior_color),
+            features = ?,
+            has_moonroof = COALESCE(?, has_moonroof),
+            has_leather = COALESCE(?, has_leather),
+            has_heated_seats = COALESCE(?, has_heated_seats),
+            has_ventilated_seats = COALESCE(?, has_ventilated_seats),
+            has_premium_sound = COALESCE(?, has_premium_sound),
+            has_power_tailgate = COALESCE(?, has_power_tailgate),
+            has_navigation = COALESCE(?, has_navigation),
+            has_360_camera = COALESCE(?, has_360_camera),
+            has_hud = COALESCE(?, has_hud),
+            has_wireless_charging = COALESCE(?, has_wireless_charging),
+            has_blind_spot = COALESCE(?, has_blind_spot),
+            has_lane_keep = COALESCE(?, has_lane_keep),
+            has_adaptive_cruise = COALESCE(?, has_adaptive_cruise),
+            has_tow_package = COALESCE(?, has_tow_package),
+            has_max_tow = COALESCE(?, has_max_tow),
+            has_offroad_package = COALESCE(?, has_offroad_package),
+            detail_scraped_at = ?
+        WHERE id = ?
+    """, (
+        specs.get('cab_type'),
+        specs.get('bed_length'),
+        specs.get('drivetrain'),
+        specs.get('engine'),
+        specs.get('exterior_color'),
+        specs.get('interior_color'),
+        json.dumps(specs.get('features', [])),
+        feature_flags.get('has_moonroof'),
+        feature_flags.get('has_leather'),
+        feature_flags.get('has_heated_seats'),
+        feature_flags.get('has_ventilated_seats'),
+        feature_flags.get('has_premium_sound'),
+        feature_flags.get('has_power_tailgate'),
+        feature_flags.get('has_navigation'),
+        feature_flags.get('has_360_camera'),
+        feature_flags.get('has_hud'),
+        feature_flags.get('has_wireless_charging'),
+        feature_flags.get('has_blind_spot'),
+        feature_flags.get('has_lane_keep'),
+        feature_flags.get('has_adaptive_cruise'),
+        feature_flags.get('has_tow_package'),
+        feature_flags.get('has_max_tow'),
+        feature_flags.get('has_offroad_package'),
+        now,
+        listing_id,
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def scrape_all_detail_pages(limit: int = None):
+    """Scrape detail pages for listings that haven't been scraped yet."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Get listings without detail_scraped_at
+    query = "SELECT id, listing_url, make FROM listings WHERE detail_scraped_at IS NULL"
+    if limit:
+        query += f" LIMIT {limit}"
+
+    cursor.execute(query)
+    listings = cursor.fetchall()
+    conn.close()
+
+    if not listings:
+        print("No listings need detail scraping.")
+        return
+
+    print(f"\nScraping details for {len(listings)} listings...")
+    session = get_session()
+
+    for i, listing in enumerate(listings, 1):
+        listing_id = listing['id']
+        url = listing['listing_url']
+        make = listing['make']
+
+        if not url:
+            continue
+
+        print(f"  [{i}/{len(listings)}] Scraping details for listing {listing_id}...")
+        random_delay()
+
+        specs = scrape_cars_com_detail_page(url, session, make)
+        update_listing_details(listing_id, specs)
+
+        # Log what we found
+        found = []
+        if specs.get('cab_type'):
+            found.append(f"cab:{specs['cab_type']}")
+        if specs.get('bed_length'):
+            found.append(f"bed:{specs['bed_length']}")
+        if specs.get('drivetrain'):
+            found.append(f"drive:{specs['drivetrain']}")
+        if specs.get('engine'):
+            found.append(f"eng:{specs['engine']}")
+        if specs.get('exterior_color'):
+            found.append(f"color:{specs['exterior_color'][:15]}")
+        feature_count = sum(1 for v in specs.get('feature_flags', {}).values() if v)
+        if feature_count:
+            found.append(f"features:{feature_count}")
+
+        if found:
+            print(f"    Found: {', '.join(found)}")
+
+    print(f"\nDetail scraping complete!")
 
 
 # =============================================================================
@@ -2053,6 +2529,17 @@ def main():
         action="store_true",
         help="Disable all filters for this run",
     )
+    parser.add_argument(
+        "--fetch-details",
+        action="store_true",
+        help="Scrape detail pages for enhanced vehicle specs (cab type, bed length, features, etc.)",
+    )
+    parser.add_argument(
+        "--detail-limit",
+        type=int,
+        metavar="COUNT",
+        help="Limit number of detail pages to scrape (use with --fetch-details)",
+    )
 
     args = parser.parse_args()
 
@@ -2091,6 +2578,9 @@ def main():
     elif args.best:
         init_database()
         show_best_deals()
+    elif args.fetch_details:
+        init_database()
+        scrape_all_detail_pages(limit=args.detail_limit)
     else:
         run_full_scrape()
 

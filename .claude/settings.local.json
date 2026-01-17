@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(python deal_finder.py:*)",
+      "Bash(cmd /c \"del D:\\\\Apps\\\\TruckDeal\\\\truck-deal-finder\\\\truck_deals.db\")",
+      "Bash(python:*)",
+      "Bash(start \"\" \"D:/Apps/TruckDeal/truck-deal-finder/truck_deals_report.html\")",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout:*)",
+      "Bash(curl:*)",
+      "Bash(start \"\" \"http://localhost:3000\")",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(gh:*)",
+      "Bash(vercel:*)",
+      "WebSearch",
+      "Bash(npm run build:*)"
+    ]
+  }
+}
